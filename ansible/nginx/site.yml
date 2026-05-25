@@ -1,0 +1,10 @@
+---
+# Full NGINX Plus HA deployment. Place license/repo files in files/ before running.
+
+- import_playbook: nginx-uninstall.yml
+- import_playbook: nginx-install.yml
+- import_playbook: nginx-ssl-certs.yml
+- import_playbook: nginx-conf.yml
+- import_playbook: nginx-deploy-conf.yml
+- import_playbook: nginx-dashboard-conf-open.yml
+- import_playbook: nginx-keepalived-ha.yml

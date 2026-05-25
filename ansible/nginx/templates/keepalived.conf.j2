@@ -1,0 +1,33 @@
+global_defs {
+    router_id NGINX_LB_{{ inventory_hostname }}
+}
+
+vrrp_script chk_nginx {
+    script "/usr/bin/pgrep nginx"
+    interval 2
+    weight -20
+}
+
+vrrp_instance VI_1 {
+    state {{ keepalived_state }}
+    interface {{ vip_interface }}
+    virtual_router_id {{ virtual_router_id }}
+    priority {{ keepalived_priority }}
+    advert_int 1
+
+    authentication {
+        auth_type PASS
+        auth_pass {{ keepalived_auth_pass | default('nginx-ha-secret') }}
+    }
+
+    virtual_ipaddress {
+        {{ vip_address }}/32 dev {{ vip_interface }}
+    }
+
+    track_script {
+        chk_nginx
+    }
+
+    garp_master_delay 1
+    garp_master_repeat 3
+}

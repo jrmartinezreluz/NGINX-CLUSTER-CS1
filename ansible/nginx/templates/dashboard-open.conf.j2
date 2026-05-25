@@ -1,0 +1,35 @@
+# NGINX Plus dashboard — open ACL for lab validation
+server {
+    listen {{ dashboard_listen_address }}:80 default_server;
+    server_name {{ dashboard_server_names }};
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen {{ dashboard_listen_address }}:443 ssl default_server;
+    http2 on;
+
+    server_name {{ dashboard_server_names }};
+
+    ssl_certificate     {{ ssl_certificate }};
+    ssl_certificate_key {{ ssl_certificate_key }};
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+
+    location /api/ {
+        api write=on;
+        allow all;
+    }
+
+    location = /status {
+        api;
+        allow all;
+    }
+
+    location /dashboard.html {
+        root /usr/share/nginx/html;
+    }
+}

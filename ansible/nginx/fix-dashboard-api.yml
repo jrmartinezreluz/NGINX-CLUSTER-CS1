@@ -1,0 +1,20 @@
+---
+- name: Harden NGINX Plus dashboard API with IP restrictions
+  hosts: lb
+  become: true
+
+  tasks:
+    - name: Deploy restricted dashboard configuration
+      template:
+        src: dashboard-restricted.conf.j2
+        dest: /etc/nginx/conf.d/dashboard.conf
+        mode: "0644"
+
+    - name: Validate NGINX configuration
+      command: nginx -t
+      changed_when: false
+
+    - name: Reload NGINX
+      service:
+        name: nginx
+        state: reloaded

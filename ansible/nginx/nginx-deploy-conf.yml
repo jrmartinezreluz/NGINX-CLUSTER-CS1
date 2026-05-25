@@ -1,0 +1,49 @@
+---
+- name: Deploy NGINX conf.d snippets from templates
+  hosts: lb
+  become: true
+
+  tasks:
+    - name: Render upstreams.conf
+      template:
+        src: upstreams.conf.j2
+        dest: /etc/nginx/conf.d/upstreams.conf
+        mode: "0644"
+
+    - name: Render app virtual host configs
+      template:
+        src: "{{ item.src }}"
+        dest: "/etc/nginx/conf.d/{{ item.dest }}"
+        mode: "0644"
+      loop:
+        - { src: app1_http.conf.j2, dest: app1_http.conf }
+        - { src: app2_http.conf.j2, dest: app2_http.conf }
+
+    - name: Ensure stream.d directory exists
+      file:
+        path: /etc/nginx/stream.d
+        state: directory
+        mode: "0755"
+      when: mysql_stream_enabled | bool
+
+    - name: Render MySQL stream config when enabled
+      template:
+        src: mysql_stream.conf.j2
+        dest: /etc/nginx/stream.d/mysql_stream.conf
+        mode: "0644"
+      when: mysql_stream_enabled | bool
+
+    - name: Remove MySQL stream config when disabled
+      file:
+        path: /etc/nginx/stream.d/mysql_stream.conf
+        state: absent
+      when: not (mysql_stream_enabled | bool)
+
+    - name: Validate NGINX configuration
+      command: nginx -t
+      changed_when: false
+
+    - name: Reload NGINX
+      service:
+        name: nginx
+        state: reloaded

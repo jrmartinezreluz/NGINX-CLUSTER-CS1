@@ -1,0 +1,15 @@
+{% if mysql_stream_enabled | bool %}
+stream {
+    upstream mysql_backend {
+        least_conn;
+{% for backend in mysql_backends %}
+        server {{ backend }};
+{% endfor %}
+    }
+
+    server {
+        listen 3306;
+        proxy_pass mysql_backend;
+    }
+}
+{% endif %}

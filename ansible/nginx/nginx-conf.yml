@@ -1,55 +1,28 @@
 ---
-- name: Reemplazar nginx.conf con configuración corregida
+- name: Deploy main nginx.conf with conf.d and optional stream includes
   hosts: lb
   become: true
 
   tasks:
-    - name: Copiar archivo nginx.conf corregido
-      copy:
+    - name: Ensure stream.d exists when MySQL stream is enabled
+      file:
+        path: /etc/nginx/stream.d
+        state: directory
+        mode: "0755"
+      when: mysql_stream_enabled | bool
+
+    - name: Render main nginx.conf
+      template:
+        src: nginx.conf.j2
         dest: /etc/nginx/nginx.conf
-        content: |
-          user nginx;
-          worker_processes auto;
-          error_log /var/log/nginx/error.log warn;
-          pid /var/run/nginx.pid;
+        mode: "0644"
+        backup: true
 
-          events {
-              worker_connections 1024;
-          }
-
-          http {
-              include       /etc/nginx/mime.types;
-              default_type  application/octet-stream;
-
-              log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                                '$status $body_bytes_sent "$http_referer" '
-                                '"$http_user_agent" "$http_x_forwarded_for"';
-
-              access_log  /var/log/nginx/access.log  main;
-
-              sendfile        on;
-              keepalive_timeout  65;
-
-              include /etc/nginx/conf.d/*.conf;
-
-              # Servidor principal por HTTP
-              server {
-                  listen 80;
-                  server_name _;
-
-                  location / {
-                      return 200 'NGINX Plus con licencia JWT instalado correctamente\n';
-                  }
-              }
-          }
-
-    - name: Verificar sintaxis de configuración NGINX
+    - name: Validate NGINX configuration
       command: nginx -t
-      register: nginx_test
-      failed_when: nginx_test.rc != 0
       changed_when: false
 
-    - name: Reiniciar NGINX
+    - name: Restart NGINX
       service:
         name: nginx
         state: restarted

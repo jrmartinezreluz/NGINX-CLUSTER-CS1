@@ -1,28 +1,23 @@
-# Archivos temporales de Ansible
+# Ansible
 *.retry
-
-# Archivos de respaldo creados por Ansible al usar backup: yes
-*.conf.*
-
-# Archivos de swap de editores
-*.swp
-*.swo
-*.bak
-
-# Archivos personales o sensibles
 *.log
-*.key
-*.crt
-*.pem
-
-# Credenciales locales
 inventory.ini
+group_vars/all.yml
 
-# Python virtual environments
+# Secrets / licenses (place in ansible/nginx/files/ locally)
+ansible/nginx/files/*.key
+ansible/nginx/files/*.crt
+ansible/nginx/files/*.pem
+ansible/nginx/files/license.jwt
+
+# Python
 venv/
-.env/
+.venv/
 __pycache__/
 
-# Archivos del sistema
+# Editor / OS
+*.swp
+*.bak
 .DS_Store
 Thumbs.db
+.env

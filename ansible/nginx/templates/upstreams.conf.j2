@@ -1,0 +1,15 @@
+# Managed by Ansible — upstreams.conf.j2
+
+upstream app1_backend {
+    least_conn;
+{% for backend in app1_backends %}
+    server {{ backend }};
+{% endfor %}
+}
+
+upstream app2_backend {
+    ip_hash;
+{% for backend in app2_backends %}
+    server {{ backend }};
+{% endfor %}
+}

@@ -1,0 +1,39 @@
+---
+# Copy to group_vars/all.yml (gitignored) and customize.
+
+vip_address: "10.0.0.100"
+vip_interface: "eth1"
+virtual_router_id: 51
+keepalived_auth_pass: "change-me-in-production"
+
+# Set false if certs are already on hosts at ssl_certificate paths
+ssl_cert_copy_enabled: true
+
+dashboard_listen_address: "10.0.0.100"
+dashboard_server_names: "nginx-primary.ghc.local nginx-secondary.ghc.local"
+
+ssl_certificate: "/etc/nginx/ssl/STAR.GHC.COM.crt"
+ssl_certificate_key: "/etc/nginx/ssl/ghc.com.key"
+
+# App1 — least_conn
+app1_server_name: "app1.ghc.com"
+app1_backends:
+  - "10.0.1.10:3000"
+  - "10.0.1.11:3000"
+
+# App2 — ip_hash
+app2_server_name: "app2.ghc.com"
+app2_backends:
+  - "10.0.2.10:3000"
+  - "10.0.2.11:3000"
+
+# MySQL stream (optional)
+mysql_stream_enabled: true
+mysql_backends:
+  - "10.0.3.10:3306"
+  - "10.0.3.11:3306"
+
+# Dashboard ACL (fix-dashboard-api / restricted mode)
+dashboard_allow_cidrs:
+  - "127.0.0.1"
+  # - "203.0.113.0/24"

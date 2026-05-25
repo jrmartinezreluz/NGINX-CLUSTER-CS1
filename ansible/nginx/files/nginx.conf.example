@@ -1,0 +1,2 @@
+# Reference only — production config is rendered from templates/nginx.conf.j2
+# See playbooks nginx-conf.yml and nginx-deploy-conf.yml.

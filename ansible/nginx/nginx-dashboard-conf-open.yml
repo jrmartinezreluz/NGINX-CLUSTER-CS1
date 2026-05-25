@@ -1,0 +1,26 @@
+---
+- name: Configure NGINX Plus dashboard with open ACL (lab validation)
+  hosts: lb
+  become: true
+
+  tasks:
+    - name: Ensure SSL directory exists
+      file:
+        path: /etc/nginx/ssl
+        state: directory
+        mode: "0750"
+
+    - name: Deploy open dashboard configuration
+      template:
+        src: dashboard-open.conf.j2
+        dest: /etc/nginx/conf.d/dashboard.conf
+        mode: "0644"
+
+    - name: Validate NGINX configuration
+      command: nginx -t
+      changed_when: false
+
+    - name: Reload NGINX
+      service:
+        name: nginx
+        state: reloaded

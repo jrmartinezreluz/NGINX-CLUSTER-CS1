@@ -1,30 +1,23 @@
 ---
-- name: Instalar y configurar Keepalived para alta disponibilidad (HA) de NGINX Plus
+- name: Install and configure Keepalived for NGINX Plus HA
   hosts: lb
-  become: yes
-
-  vars:
-    vip_address: x.x.x.x
-    interface_name: eth1
-    priority: 100  # Este valor se sobreescribirá dinámicamente en el template
+  become: true
 
   tasks:
-    - name: Instalar keepalived
+    - name: Install keepalived
       dnf:
         name: keepalived
         state: present
-        update_cache: yes
+        update_cache: true
 
-    - name: Copiar plantilla de configuración keepalived.conf
+    - name: Deploy keepalived.conf from template
       template:
         src: keepalived.conf.j2
         dest: /etc/keepalived/keepalived.conf
-        owner: root
-        group: root
-        mode: '0644'
+        mode: "0644"
 
-    - name: Habilitar y arrancar el servicio keepalived
+    - name: Enable and start keepalived
       systemd:
         name: keepalived
-        enabled: yes
+        enabled: true
         state: restarted
